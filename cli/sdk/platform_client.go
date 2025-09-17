@@ -164,12 +164,20 @@ func (t *KubernetesPlatformClient) CreateTunnel(resourceType string, resourceNam
 	if err != nil {
 		return err
 	}
-
+	hostWithoutScheme := strings.TrimPrefix(t.kubeConfig.Host, "https://")
 	namespace := t.kubeNamespace
+	var hostPart, pathBase string
+	if idx := strings.Index(hostWithoutScheme, "/"); idx != -1 {
+		hostPart = hostWithoutScheme[:idx] // es. cloud.admiralpay.it
+		pathBase = hostWithoutScheme[idx:] // es. /k8s/clusters/c-m-87f7w888
+	} else {
+		hostPart = hostWithoutScheme
+		pathBase = ""
+	}
 	proxyURL := &url.URL{
 		Scheme: "https",
-		Path:   fmt.Sprintf("/api/v1/namespaces/%s/pods/%s/portforward", namespace, pod.Pod),
-		Host:   strings.TrimPrefix(t.kubeConfig.Host, "https://"),
+		Host:   hostPart,
+		Path:   fmt.Sprintf("%s/api/v1/namespaces/%s/pods/%s/portforward", pathBase, namespace, pod.Pod),
 	}
 
 	transport, upgrader, err := spdy.RoundTripperFor(t.kubeConfig)
@@ -267,11 +275,20 @@ func (t *KubernetesPlatformClient) createManagementApiTunnel(apiClient *ApiClien
 		return err
 	}
 
+	hostWithoutScheme := strings.TrimPrefix(t.kubeConfig.Host, "https://")
 	namespace := t.kubeNamespace
+	var hostPart, pathBase string
+	if idx := strings.Index(hostWithoutScheme, "/"); idx != -1 {
+		hostPart = hostWithoutScheme[:idx] // es. cloud.admiralpay.it
+		pathBase = hostWithoutScheme[idx:] // es. /k8s/clusters/c-m-87f7w888
+	} else {
+		hostPart = hostWithoutScheme
+		pathBase = ""
+	}
 	proxyURL := &url.URL{
 		Scheme: "https",
-		Path:   fmt.Sprintf("/api/v1/namespaces/%s/pods/%s/portforward", namespace, podName),
-		Host:   strings.TrimPrefix(t.kubeConfig.Host, "https://"),
+		Host:   hostPart,
+		Path:   fmt.Sprintf("%s/api/v1/namespaces/%s/pods/%s/portforward", pathBase, namespace, pod.Pod),
 	}
 
 	transport, upgrader, err := spdy.RoundTripperFor(t.kubeConfig)
