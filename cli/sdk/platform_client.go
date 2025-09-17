@@ -288,7 +288,7 @@ func (t *KubernetesPlatformClient) createManagementApiTunnel(apiClient *ApiClien
 	proxyURL := &url.URL{
 		Scheme: "https",
 		Host:   hostPart,
-		Path:   fmt.Sprintf("%s/api/v1/namespaces/%s/pods/%s/portforward", pathBase, namespace, pod.Pod),
+		Path:   fmt.Sprintf("%s/api/v1/namespaces/%s/pods/%s/portforward", pathBase, namespace, podName),
 	}
 
 	transport, upgrader, err := spdy.RoundTripperFor(t.kubeConfig)
